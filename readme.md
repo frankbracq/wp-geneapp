@@ -44,22 +44,6 @@ Idéal pour les portails généalogiques, les membres de clubs d'histoire famili
 
 ---
 
-## 🔐 Côté app (Cloudflare Pages)
-
-Pour que l’iframe se redimensionne automatiquement, ajoutez ce script dans votre app :
-
-```js
-function sendHeightToParent() {
-  const height = document.body.scrollHeight;
-  window.parent.postMessage({ geneappHeight: height }, '*');
-}
-window.addEventListener('load', sendHeightToParent);
-const resizeObserver = new ResizeObserver(() => sendHeightToParent());
-resizeObserver.observe(document.body);
-```
-
----
-
 ## 📜 Licence
 
 Ce plugin est distribué sous licence [GPL v2 ou ultérieure](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html).
