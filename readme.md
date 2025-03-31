@@ -4,21 +4,33 @@
 [![Build](https://github.com/frankbracq/wp-geneapp/actions/workflows/release.yml/badge.svg)](https://github.com/frankbracq/wp-geneapp/actions)
 [![Download Plugin](https://img.shields.io/github/downloads/frankbracq/wp-geneapp/total?label=Download%20Plugin)](https://github.com/frankbracq/wp-geneapp/releases/latest)
 
-Un plugin WordPress pour intégrer genealogie.app via iframe dans votre site internet.
+**WP GeneApp** est un plugin WordPress conçu pour intégrer l’application [genealogie.app](https://genealogie.app) dans n’importe quel site WordPress, sous forme d’iframe interactive et sécurisée.
+
+Il permet aux utilisateurs connectés de **consulter, visualiser ou interagir avec les résultats d'une recherche généalogique**, tout en conservant les droits d'accès sécurisés.
+Idéal pour les portails généalogiques, les membres de clubs d'histoire familiale ou les plateformes collaboratives.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Cas d’usage typique
+
+- Intégrer genealogie.app dans un espace membre WordPress
+- Afficher des arbres ou résultats généalogiques dynamiques
+- Personnaliser l'expérience selon l'utilisateur WP connecté
+- Conserver les droits d’accès via vérification côté app
+
+---
+
+## 🔧 Fonctionnalités
 
 - ✅ Intégration via iframe : `[geneapp_embed src="https://app.genealogie.app" auto_height="true"]`
-- ✅ Transmission sécurisée de l’utilisateur WordPress : ID, email, timestamp
+- ✅ Transmission sécurisée de l’ID utilisateur et de l’email
 - ✅ Signature HMAC vérifiable côté app intégrée
 - ✅ Interface admin WordPress pour gérer la clé HMAC
 - ✅ Redimensionnement automatique de l’iframe (`auto_height="true"`)
 
 ---
 
-## 🛠 Installation
+## 🚀 Installation
 
 1. [Téléchargez la dernière version ici](https://github.com/frankbracq/wp-geneapp/releases/latest)
 2. Téléversez le fichier `.zip` dans `Extensions > Ajouter > Téléverser une extension`
@@ -28,6 +40,22 @@ Un plugin WordPress pour intégrer genealogie.app via iframe dans votre site int
 
 ```plaintext
 [geneapp_embed src="https://app.genealogie.app" auto_height="true"]
+```
+
+---
+
+## 🔐 Côté app (Cloudflare Pages)
+
+Pour que l’iframe se redimensionne automatiquement, ajoutez ce script dans votre app :
+
+```js
+function sendHeightToParent() {
+  const height = document.body.scrollHeight;
+  window.parent.postMessage({ geneappHeight: height }, '*');
+}
+window.addEventListener('load', sendHeightToParent);
+const resizeObserver = new ResizeObserver(() => sendHeightToParent());
+resizeObserver.observe(document.body);
 ```
 
 ---
