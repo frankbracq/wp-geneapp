@@ -1,0 +1,26 @@
+name: Build Release Zip
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Plugin Zip
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create plugin zip
+        run: |
+          zip -r wp-geneapp.zip wp-geneapp
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: wp-geneapp.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
