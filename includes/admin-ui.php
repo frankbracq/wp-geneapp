@@ -1,16 +1,19 @@
 <?php
 defined('ABSPATH') || exit;
 
+add_action('admin_menu', 'wp_geneapp_register_admin_menu');
+
 function wp_geneapp_register_admin_menu() {
-    add_options_page(
-        'WP GeneApp',
-        'WP GeneApp',
-        'manage_options',
-        'wp-geneapp',
-        'wp_geneapp_render_settings_page'
+    add_menu_page(
+        'WP GeneApp',                     // Page title
+        'WP GeneApp',                     // Menu title
+        'manage_options',                 // Capability
+        'wp-geneapp',                     // Menu slug
+        'wp_geneapp_render_settings_page',// Function
+        'dashicons-admin-site-alt3',     // Icon
+        65                                // Position
     );
 }
-add_action('admin_menu', 'wp_geneapp_register_admin_menu');
 
 function wp_geneapp_render_settings_page() {
     ?>
