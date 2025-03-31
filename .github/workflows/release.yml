@@ -16,9 +16,10 @@ jobs:
 
       - name: Package plugin into wp-geneapp.zip
         run: |
-          mkdir wp-geneapp
-          cp -r * wp-geneapp/
-          zip -r wp-geneapp.zip wp-geneapp
+          mkdir package
+          rsync -av --progress ./ ./package/wp-geneapp --exclude .git --exclude .github --exclude wp-geneapp.zip
+          cd package
+          zip -r ../wp-geneapp.zip wp-geneapp
 
       - name: Upload plugin zip to release
         uses: softprops/action-gh-release@v1
