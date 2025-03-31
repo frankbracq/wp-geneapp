@@ -14,13 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create wp-geneapp plugin zip
+      - name: Package plugin into wp-geneapp.zip
         run: |
-          mkdir wp-geneapp-package
-          cp -r * wp-geneapp-package/
-          rm -rf wp-geneapp-package/.git wp-geneapp-package/.github
-          cd wp-geneapp-package
-          zip -r ../wp-geneapp.zip wp-geneapp
+          mkdir wp-geneapp
+          cp -r * wp-geneapp/
+          zip -r wp-geneapp.zip wp-geneapp
 
       - name: Upload plugin zip to release
         uses: softprops/action-gh-release@v1
