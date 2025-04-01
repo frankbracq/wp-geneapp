@@ -1,69 +1,68 @@
 <?php
 /**
- * Plugin Name: WP GeneApp
- * Description: Intègre une app externe via iframe avec transmission sécurisée de l'identité utilisateur WordPress.
- * Version: 1.0.0
- * Author: KoT 
- * License: GPL2
- * Text Domain: wp-geneapp
+ * Plugin Name: WP GeneApp (Test Signature HMAC)
+ * Description: Version de test avec clé HMAC codée en dur.
+ * Version: 1.1.0-test
  */
 
-defined('ABSPATH') || exit;
+ function wp_geneapp_shortcode($atts) {
+    if (!is_user_logged_in()) return '<p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>';
 
-require_once plugin_dir_path(__FILE__) . 'includes/signature.php';
-require_once plugin_dir_path(__FILE__) . 'includes/admin-ui.php';
+    $current_user = wp_get_current_user();
+    $user_data = [
+        'id'        => $current_user->ID,
+        'email'     => $current_user->user_email,
+        'timestamp' => time(),
+    ];
 
-function render_geneapp_embed_shortcode($atts) {
-  $atts = shortcode_atts([
-      'src' => 'https://genealogie.app/embed',
-      'auto_height' => 'false',
-      'width' => '100%',
-      'height' => '600px'
-  ], $atts);
+    $atts = shortcode_atts([
+        'src'         => '',
+        'width'       => '100%',
+        'height'      => '600px',
+        'auto_height' => 'false',
+    ], $atts);
 
-  $user = wp_get_current_user();
-  $uid = $user->ID;
-  $email = $user->user_email;
-  $ts = time();
-  $secret = get_option('geneapp_hmac_secret');
+    if (empty($atts['src'])) return '<p>Erreur : URL de l’iframe manquante.</p>';
 
-  // Générer la signature HMAC
-  $string_to_sign = "uid=$uid&email=$email&ts=$ts";
-  $sig = hash_hmac('sha256', $string_to_sign, $secret);
+    // Infos partenaire
+    $partner_id = 'lisi7921.odns.fr';
+    $partner_secret = 'cle_secrete_wp_lisi7921';
 
-  // Construire l'URL finale avec les paramètres signés
-  $signed_src = add_query_arg([
-      'uid' => $uid,
-      'email' => rawurlencode($email),
-      'ts' => $ts,
-      'sig' => $sig
-  ], $atts['src']);
+    // Génération signature (appel propre)
+    $signature = wp_geneapp_generate_signature($partner_id, $user_data, $partner_secret);
 
-  // Générer l'iframe
-  $iframe_id = 'geneapp-embed-' . uniqid();
-  $iframe = sprintf(
-      '<iframe id="%s" src="%s" width="%s" height="%s" style="border:none;" loading="lazy" allowfullscreen></iframe>',
-      esc_attr($iframe_id),
-      esc_url($signed_src),
-      esc_attr($atts['width']),
-      esc_attr($atts['height'])
-  );
+    // URL iframe complète
+    $iframe_url = add_query_arg([
+        'partner_id' => $partner_id,
+        'uid'        => $user_data['id'],
+        'email'      => urlencode($user_data['email']),
+        'ts'         => $user_data['timestamp'],
+        'sig'        => $signature,
+    ], $atts['src']);
 
-  // Script pour auto-resize si demandé
-  $script = '';
-  if ($atts['auto_height'] === 'true') {
-      $script = "<script>
-          window.addEventListener('message', function(event) {
-              if (event.origin !== 'https://genealogie.app') return;
-              if (event.data?.type === 'resize' && typeof event.data.height === 'number') {
-                  const iframe = document.getElementById('$iframe_id');
-                  if (iframe) iframe.style.height = event.data.height + 'px';
-              }
-          });
-      </script>";
-  }
+    $iframe_id = 'wpGeneappIframe_' . uniqid();
 
-  return $iframe . $script;
+    ob_start();
+    ?>
+    <iframe id="<?php echo esc_attr($iframe_id); ?>"
+            src="<?php echo esc_url($iframe_url); ?>"
+            width="<?php echo esc_attr($atts['width']); ?>"
+            height="<?php echo esc_attr($atts['height']); ?>"
+            style="border: none;"></iframe>
+
+    <?php if ($atts['auto_height'] === 'true') : ?>
+    <script>
+      window.addEventListener("message", (event) => {
+        if (!event.origin.includes("genealogie.app")) return;
+        if (event.data.geneappHeight && !isNaN(event.data.geneappHeight)) {
+          const iframe = document.getElementById('<?php echo esc_js($iframe_id); ?>');
+          iframe.style.height = event.data.geneappHeight + "px";
+        }
+      });
+    </script>
+    <?php endif; ?>
+
+    <?php
+    return ob_get_clean();
 }
-
 add_shortcode('geneapp_embed', 'wp_geneapp_shortcode');
