@@ -166,13 +166,13 @@ class WP_GeneApp {
      */
     public function plugin_activation() {
         // Créer la page GeneApp si elle n'existe pas déjà
-        $geneapp_page = get_page_by_path('genealogie');
+        $geneapp_page = get_page_by_path('geneapp');
         
         if (!$geneapp_page) {
             // Créer une nouvelle page
             $page_data = array(
                 'post_title'    => 'Généalogie',
-                'post_name'     => 'genealogie',
+                'post_name'     => 'geneapp',
                 'post_status'   => 'publish',
                 'post_type'     => 'page',
                 'post_content'  => '[geneapp_embed auto_height="true"]',
