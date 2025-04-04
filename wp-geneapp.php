@@ -109,8 +109,16 @@ class WP_GeneApp {
               // Écouter les messages de l'iframe
               window.addEventListener("message", (event) => {
                 if (!event.origin.includes("genealogie.app")) return;
+                
+                // Gestion de la hauteur automatique
                 if (event.data.geneappHeight && !isNaN(event.data.geneappHeight)) {
                   iframe.style.height = event.data.geneappHeight + "px";
+                }
+                
+                // Gestion du bouton d'accueil - retour à la page d'accueil WordPress
+                if (event.data.action === 'returnToHome' && event.data.source === 'geneafan') {
+                  console.log('Navigation: retour à l\'accueil demandé par GeneaFan');
+                  window.location.href = '<?php echo esc_js(home_url()); ?>';
                 }
               });
               <?php endif; ?>
